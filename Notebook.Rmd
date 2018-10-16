@@ -1,0 +1,98 @@
+---
+title: "PE-PSet2"
+output: pdf_document
+author: Drazzel Feliu - 12174100
+---
+
+```{r setup, results='hide', warning=FALSE, message=FALSE,include=FALSE}
+# Clear Workspace
+rm(list=ls())
+
+# Load Libraries
+library(haven)
+library(reshape)
+library(tidyverse)
+library(magrittr)
+library(survival)
+```
+
+For this assignment, provide a write-‐up where you answer the questions below,
+selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also, submit a log file that includes commands and results for your entire analysis. The assignment makes use of almond_etal_2008.dta, which you can find on Canvas.
+
+```{r}
+# load data set
+data <- read_dta("almond_etal_2008.dta")
+# identify data labels
+datalabels <- sapply(data, function (x) attr(x, "label"))
+```
+
+```{r, results='hide'}
+# data cleaning
+# check data class & view summary
+sapply(data, class)
+summary(data)
+
+# assuming that the data is missing completely at random, all NA values across all observations must be dropped
+data <- na.omit(data) ## WILL NOT WORK GIVEN THIS DATASET. DATA NEEDS TO BE CLEANED INDIVIDUALLY BY COLUMN
+
+# view data summary
+summary(data)
+```
+
+# Motivation
+
+A key policy question in health economics is whether the benefits of additional medical expenditures exceed their cost. The question is particularly relevant since medical expenditures in the United States have been on the rise for a long time. To analyze this question Almond et al (2008), use a RDD design and compare health outcomes of newborns around the threshold of very low birth weight (1500 grams).They argue that the threshold is commonly used as a rule of thumb to prescribe medical treatment, which is followed mainly by convention, and does not reflect biological criteria. In this problem set we will reproduce some of their basic results,so start by reading their paper, which you can find in Canvas.
+
+# Questions:
+
+## 1
+
+Start by getting the descriptive statistics of birth weight in the sample, what is the mean, standard deviation, minimum, and maximum?
+
+## Answer
+
+## 2
+
+Now plot one year and 28 day mortality rates against our running variable, birth weight. To do so, make bins of one ounce (28.35 grams) around the 1500 grams threshold, and get the mean mortality rate on each bin. Make a separate graph for each outcome. Describe the relationship between birth weight and mortality. Does it appear to be a discontinuity of mortality around the very low birth weight threshold? How does the number of observations in each bin affect your mean estimates?
+
+## Answer
+
+## 3
+
+A key assumption for an RDD to provide a causal estimate is that individuals arenot able to sort according to the running variable, i.e., they should not be able to manipulate its value. Discuss in your own words whether this is a reasonable assumption in this case. (Include tables with the relevant info (Coefficients of interest, standard errors and sample size).)
+
+## Answer
+
+## 4
+
+Assess informally whether the behavior of other covariates is smooth around the threshold, by plotting the mean of some covariates (mother’s age, mother’s education less than high school, gestational age, prenatal care visits, and year of birth) against birth weight as you did in point (2). Is there any evidence of discontinuities on other covariates around the very low birth weight threshold? If they were, how could these affect your RDD estimates?
+
+## Answer
+
+## 5
+
+Now get an estimate of the size of the discontinuity in one-‐year and 28-‐day mortality, around the 1500 grams threshold using a caliper of 85 grams (above and below the threshold). To do so, use the following model:
+
+$$ Y_i = \alpha_0 + \alpha_1VLBW_i + \alpha_2VLBW_i*(g_i-1500) + \alpha_3*(1-VLBW_i)*(g_i - 1500) + \epsilon_i $$
+
+where $Y_i$ is the outcome of interest, $VLBW_i$ indicates that a newborn had very low birth weight (<1500 grams), $g_i$ is birth weight, and $\epsilon_i$ a disturbance term. Interpret the coefficients $\alpha_1$, $\alpha_2$, and $\alpha_3$.
+
+## Answer
+
+## 6
+
+Now add covariates to the model in (5). Include mother’s age, indicators for mother’s education and race, indicators for year of birth, indicators for gestational age and prenatal care visits. Use the dummies provided in the data for gestational age and prenatal care visits. Compare your estimates to those obtained in (5) and explain the difference if any.
+
+## Answer
+
+## 7
+
+Use the model in (6) to assess the sensitivity of the estimates to the use of different calipers. Use calipers of 30 and 120 grams (above and below the 1500 threshold). Are the estimates any different to those obtained in (6)? What is the tradeoff that we face when increasing/decreasing the caliper?
+
+## Answer
+
+## 8
+
+Synthetize your findings and discuss what kind of supplementary information would you need to make a cost-benefit analysis of treatment received by newborns close to the very low birth weight threshold.
+
+## Answer

@@ -22,18 +22,28 @@ selectively cutting and pasting output where needed. Be concise in your write-up
 ```{r}
 # load data set
 data <- read_dta("almond_etal_2008.dta")
-# identify data labels
-datalabels <- sapply(data, function (x) attr(x, "label"))
+# create data table identifying class and labels for each variable
+datainfo <- data.frame(variable=colnames(data),
+              class=sapply(data, class),
+              label=sapply(data, function (x) attr(x, "label")))
+datainfo <- `rownames<-`(datainfo, 1:44)
+datainfo
+# summary statistics of variables
+summary(data)
 ```
 
 ```{r, results='hide'}
-# data cleaning
-# check data class & view summary
-sapply(data, class)
-summary(data)
+# create missingness variable for data
+filter(data, is.na(yod))
 
-# assuming that the data is missing completely at random, all NA values across all observations must be dropped
-data <- na.omit(data) ## WILL NOT WORK GIVEN THIS DATASET. DATA NEEDS TO BE CLEANED INDIVIDUALLY BY COLUMN
+ifelse(anyNA(data[1,]==TRUE),1,0)
+
+# balance in missingness
+balance <- lm(data = data, )
+summary(balance)
+
+
+# MCAR - omit NAs
 
 # view data summary
 summary(data)

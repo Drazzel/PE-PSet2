@@ -119,6 +119,21 @@ Assess informally whether the behavior of other covariates is smooth around the 
 
 ## Answer
 
+```{r}
+plot3 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_age)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Mother's Age") + xlab("Birth Weight Bins")
+plot3
+
+plot4 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_ed1)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Mother's Education (Below High School)") + xlab("Birth Weight Bins")
+plot4
+
+plot5 <- data %>% group_by(bins) %>% summarize(mean = mean(nprenatal, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Prenatal Visits") + xlab("Birth Weight Bins")
+plot5
+
+plot6 <- data %>% group_by(bins) %>% summarize(mean = mean(gest, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Gestational Age") + xlab("Birth Weight Bins")
+plot6
+```
+There is evidence of discontinuities on other covariates (particularly number of prenatal visits). The problem this could likely introduce in our RDD estimates is that the supposition that our populations are similar around the threshold will not hold and thereby undermining the assumption necessary for us to estimate the RDD accurately.
+
 ## 5
 
 Now get an estimate of the size of the discontinuity in one-‐year and 28-‐day mortality, around the 1500 grams threshold using a caliper of 85 grams (above and below the threshold). To do so, use the following model:

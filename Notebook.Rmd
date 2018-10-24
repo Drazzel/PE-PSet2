@@ -14,6 +14,7 @@ library(reshape)
 library(tidyverse)
 library(magrittr)
 library(survival)
+library(ggplot2)
 ```
 
 For this assignment, provide a write-‐up where you answer the questions below,
@@ -32,23 +33,6 @@ datainfo
 summary(data)
 ```
 
-```{r, results='hide'}
-# create missingness variable for data
-filter(data, is.na(yod))
-
-ifelse(anyNA(data[1,]==TRUE),1,0)
-
-# balance in missingness
-balance <- lm(data = data, )
-summary(balance)
-
-
-# MCAR - omit NAs
-
-# view data summary
-summary(data)
-```
-
 # Motivation
 
 A key policy question in health economics is whether the benefits of additional medical expenditures exceed their cost. The question is particularly relevant since medical expenditures in the United States have been on the rise for a long time. To analyze this question Almond et al (2008), use a RDD design and compare health outcomes of newborns around the threshold of very low birth weight (1500 grams).They argue that the threshold is commonly used as a rule of thumb to prescribe medical treatment, which is followed mainly by convention, and does not reflect biological criteria. In this problem set we will reproduce some of their basic results,so start by reading their paper, which you can find in Canvas.
@@ -59,7 +43,19 @@ A key policy question in health economics is whether the benefits of additional 
 
 Start by getting the descriptive statistics of birth weight in the sample, what is the mean, standard deviation, minimum, and maximum?
 
+```{r}
+mean(data$bweight)
+sd(data$bweight)
+min(data$bweight)
+max(data$bweight)
+```
+
 ## Answer
+
+The mean birth weight is 1511.58 grams.
+The standard deviation is 89.02.
+The minimum birth weight is 1350 grams.
+The maximum birth weight is 1650 grams.
 
 ## 2
 
@@ -67,11 +63,55 @@ Now plot one year and 28 day mortality rates against our running variable, birth
 
 ## Answer
 
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE,include=FALSE}
+upbins <- seq(from= 1500, to=max(data$bweight), by= 28.35)
+lobins <- seq(from= 1500, to=min(data$bweight), by = -28.35)
+
+ggplot(data, aes(x=bweight, col = "blue")) + geom_histogram(binwidth = 28.35) + scale_x_continuous(breaks = c(lobins, upbins)) + xlab("Birth Weight") + ylab("Count") + theme_classic() + geom_vline(xintercept = 1500, col="pink")
+```
+
+```{r, echo=FALSE, results='hide'}
+#create data bins
+data$bins <- cut(data$bweight, breaks = c(min(data$bweight)-1,rev(lobins[2:6]), upbins, max(data$bweight)+1), labels = 1:12)
+
+#label bins
+data$bins = factor(data$bins,labels=c("1350-1358","1359-1386","1387-1414","1415-1443","1444-1471","1472-1500","1501-1528","1529-1556","1557-1585","1586-1613","1614-1641","1642-1650"))
+
+#produce plots
+plot1 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth5)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean 1 Year Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09)
+
+plot2 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth4)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean 28 Day Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09)
+```
+
+Mean 1 Year Mortality Rate by Birth Weight
+```{r}
+plot1
+```
+Mean 28 Day Mortality Rate by Birth Weight
+```{r}
+plot2
+```
+
+The relationship between birth weight and both of the mortality measures we analyzed in our plots are negatively correlated and highly statistically significant, indicating that higher birth weights are correlated with a minimized probability of mortality, both 28 days out and 1 year out from date of birth.
+```{r}
+cor.test(data$agedth4,data$bweight)
+cor.test(data$agedth5,data$bweight)
+```
+
+The regression discontinuity at 1500 grams seems to be fuzzy. It does not indicate a marked increase in the probability of a premature death at either of the date cutoffs specified previously (28 days or 1 year).
+
+The mean estimate for the lowest bin (1350-1358) is sensitive because the number of observations is ~10% the size of the other bins. Any outliers in either direction are likely to bias the mean estimate of that bin.
+```{r}
+data %>% count(bins)
+```
+
 ## 3
 
-A key assumption for an RDD to provide a causal estimate is that individuals arenot able to sort according to the running variable, i.e., they should not be able to manipulate its value. Discuss in your own words whether this is a reasonable assumption in this case. (Include tables with the relevant info (Coefficients of interest, standard errors and sample size).)
+A key assumption for an RDD to provide a causal estimate is that individuals are not able to sort according to the running variable, i.e., they should not be able to manipulate its value. Discuss in your own words whether this is a reasonable assumption in this case. (Include tables with the relevant info (Coefficients of interest, standard errors and sample size).)
 
 ## Answer
+
+This assumption is reasonable. While there may be some financial incentive to induce early births on behalf of the practicing obstetrician (in order to charge more in future services), there seems likely to be enough practical resistance to inducing early births around the cutoff. Especially when considering that attempting to fall below the cutoff only endangers the life of the baby even more. No parent, under this scenario, would attempt to induce an early birth. The cutoff of 1500 grams is also so low that no parent would reasonably attempt to have a baby born at so low a weight (3.3 lbs).
 
 ## 4
 

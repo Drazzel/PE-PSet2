@@ -78,9 +78,9 @@ data$bins <- cut(data$bweight, breaks = c(min(data$bweight)-1,rev(lobins[2:6]), 
 data$bins = factor(data$bins,labels=c("1350-1358","1359-1386","1387-1414","1415-1443","1444-1471","1472-1500","1501-1528","1529-1556","1557-1585","1586-1613","1614-1641","1642-1650"))
 
 #produce plots
-plot1 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth5)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean 1 Year Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09)
+plot1 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth5)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink") + theme_classic() + ylab("Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09) + coord_cartesian(ylim = c(0.04, 0.08)) + ggtitle("Mean 1 Year Mortality Rate (in %)") + theme(plot.title = element_text(hjust = 0.5))
 
-plot2 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth4)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean 28 Day Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09)
+plot2 <- data %>% group_by(bins) %>% summarize(mean = mean(agedth4)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink") + theme_classic() + ylab("Mortality Rate") + xlab("Birth Weight Bins") + ylim(0.025, 0.09) + coord_cartesian(ylim = c(0.02, 0.06)) + ggtitle("Mean 28 Day Mortality Rate (in %)") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 Mean 1 Year Mortality Rate by Birth Weight
@@ -113,6 +113,12 @@ A key assumption for an RDD to provide a causal estimate is that individuals are
 
 This assumption is reasonable. While there may be some financial incentive to induce early births on behalf of the practicing obstetrician (in order to charge more in future services), there seems likely to be enough practical resistance to inducing early births around the cutoff. Especially when considering that attempting to fall below the cutoff only endangers the life of the baby even more. No parent, under this scenario, would attempt to induce an early birth. The cutoff of 1500 grams is also so low that no parent would reasonably attempt to have a baby born at so low a weight (3.3 lbs).
 
+I have conducted a balance test between the two bins both above and below the 1500 gram threshold. Any statistically significant differences amongst the two would indicate that there was a likelihood of some manipulation around the boundary of the regression discontinuity. 
+```{r}
+
+```
+
+
 ## 4
 
 Assess informally whether the behavior of other covariates is smooth around the threshold, by plotting the mean of some covariates (mother’s age, mother’s education less than high school, gestational age, prenatal care visits, and year of birth) against birth weight as you did in point (2). Is there any evidence of discontinuities on other covariates around the very low birth weight threshold? If they were, how could these affect your RDD estimates?
@@ -120,16 +126,16 @@ Assess informally whether the behavior of other covariates is smooth around the 
 ## Answer
 
 ```{r}
-plot3 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_age)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Mother's Age") + xlab("Birth Weight Bins")
+plot3 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_age)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Mean Mother's Age") + xlab("Birth Weight Bins") 
 plot3
 
-plot4 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_ed1)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Mother's Education (Below High School)") + xlab("Birth Weight Bins")
+plot4 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_ed1)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Mean Mother's Education (Below High School)") + xlab("Birth Weight Bins")
 plot4
 
-plot5 <- data %>% group_by(bins) %>% summarize(mean = mean(nprenatal, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Prenatal Visits") + xlab("Birth Weight Bins")
+plot5 <- data %>% group_by(bins) %>% summarize(mean = mean(nprenatal, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Mean Prenatal Visits") + xlab("Birth Weight Bins")
 plot5
 
-plot6 <- data %>% group_by(bins) %>% summarize(mean = mean(gest, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, col = "pink") + theme_classic() + ylab("Mean Gestational Age") + xlab("Birth Weight Bins")
+plot6 <- data %>% group_by(bins) %>% summarize(mean = mean(gest, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Mean Gestational Age") + xlab("Birth Weight Bins")
 plot6
 ```
 There is evidence of discontinuities on other covariates (particularly number of prenatal visits). The problem this could likely introduce in our RDD estimates is that the supposition that our populations are similar around the threshold will not hold and thereby undermining the assumption necessary for us to estimate the RDD accurately.

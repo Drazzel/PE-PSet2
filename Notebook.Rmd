@@ -118,7 +118,6 @@ I have conducted a balance test between the two bins immediately above and below
 ```{r}
 databal <- data
 databal$bins <- NULL
-binbreaks[6:8]
 databal$bins <- as.numeric(cut(data$bweight, breaks = binbreaks[6:8], labels = 0:1))
 databal <- drop_na(databal, bins)
 

@@ -112,20 +112,19 @@ A key assumption for an RDD to provide a causal estimate is that individuals are
 
 ## Answer
 
-This assumption is reasonable. While there may be some financial incentive to induce early births on behalf of the practicing obstetrician (in order to charge more in future services), there seems likely to be enough practical resistance to inducing early births around the cutoff. Especially when considering that attempting to fall below the cutoff only endangers the life of the baby even more. No parent, under this scenario, would attempt to induce an early birth. The cutoff of 1500 grams is also so low that no parent would reasonably attempt to have a baby born at so low a weight (3.3 lbs).
+This assumption is reasonable. While there may be some financial incentive to induce early births on behalf of the practicing obstetrician (in order to charge more in future services), there seems likely to be enough practical resistance to inducing early births around the cutoff. Especially when considering that attempting to fall below the cutoff only endangers the life of the baby even more. No parent, under this scenario, would attempt to induce an early birth. The cutoff of 1500 grams is also so low that no parent would reasonably attempt to have a baby born at so low a weight (3.3 lbs). Additionally, any selection across the birth weight variable would have to be reflected in all the other covariates variables around the margin.
 
-I have conducted a balance test between the two bins immediately above and below the 1500 gram threshold. Any statistically significant differences amongst the two would indicate that there was a likelihood of some manipulation around the boundary of the regression discontinuity. 
+I have conducted a balance test between the two bins immediately above and below the 1500 gram threshold. A series of statistically significant differences amongst the two would indicate that there was a likelihood of some manipulation around the boundary of the regression discontinuity.
 ```{r}
 databal <- data
 databal$bins <- NULL
 databal$bins <- as.numeric(cut(data$bweight, breaks = binbreaks[6:8], labels = 0:1))
 databal <- drop_na(databal, bins)
 
-baltest <- lm(data = databal,bins ~ bweight)
+baltest <- lm(data = databal,bins ~ mom_age + mom_race + mom_ed + gest + nprenatal + sex + agedth)
 summary(baltest)
-
 ```
-
+The results indicate that there is only a statistically significant difference in the ages of the mothers. We can reasonably assume that individuals are not selecting across the running variable at the threshold.
 
 ## 4
 

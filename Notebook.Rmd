@@ -16,6 +16,7 @@ library(magrittr)
 library(survival)
 library(ggplot2)
 library(rdd)
+library(ggpubr)
 ```
 
 For this assignment, provide a write-‐up where you answer the questions below,
@@ -135,16 +136,14 @@ Assess informally whether the behavior of other covariates is smooth around the 
 
 ```{r}
 plot3 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_age)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Age") + xlab("Birth Weight Bins") + ggtitle("Mean Mother's Age") + theme(plot.title = element_text(hjust = 0.5))
-plot3
 
 plot4 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_ed, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Education Level Achieved") + xlab("Birth Weight Bins") + ggtitle("Mean Mother's Education (in grade level completed)") + theme(plot.title = element_text(hjust = 0.5))
-plot4
 
 plot5 <- data %>% group_by(bins) %>% summarize(mean = mean(nprenatal, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Prenatal Visits") + xlab("Birth Weight Bins") + ggtitle("Mean Prenatal Visits") + theme(plot.title = element_text(hjust = 0.5))
-plot5
 
 plot6 <- data %>% group_by(bins) %>% summarize(mean = mean(gest, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Number of Weeks in Gestation") + xlab("Birth Weight Bins") + ggtitle("Mean Weeks in Gestation") + theme(plot.title = element_text(hjust = 0.5))
-plot6
+
+ggarrange(plotlist = list(plot3, plot4, plot5, plot6))
 ```
 There is evidence of discontinuities on other covariates (particularly number of prenatal visits). The problem this could likely introduce in our RDD estimates is that the supposition that our populations are similar around the threshold will not hold and thereby undermining the assumption necessary for us to estimate the RDD accurately.
 
@@ -159,11 +158,11 @@ where $Y_i$ is the outcome of interest, $VLBW_i$ indicates that a newborn had ve
 ## Answer
 
 ```{r}
-rdd1year85 <- RDestimate(data= data,agedth5~bweight, cutpoint = 1500, bw = 85)
-summary(rdd1year85)
+data$VLBW <- ifelse(data$bweight >= 1500, 1,0)
 
-rdd28day85 <- RDestimate(data= data,agedth4~bweight, cutpoint = 1500, bw = 85)
-summary(rdd28day85)
+
+
+
 ```
 
 

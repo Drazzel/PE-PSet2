@@ -15,6 +15,7 @@ library(tidyverse)
 library(magrittr)
 library(survival)
 library(ggplot2)
+library(rdd)
 ```
 
 For this assignment, provide a write-‐up where you answer the questions below,
@@ -156,6 +157,15 @@ $$ Y_i = \alpha_0 + \alpha_1VLBW_i + \alpha_2VLBW_i*(g_i-1500) + \alpha_3*(1-VLB
 where $Y_i$ is the outcome of interest, $VLBW_i$ indicates that a newborn had very low birth weight (<1500 grams), $g_i$ is birth weight, and $\epsilon_i$ a disturbance term. Interpret the coefficients $\alpha_1$, $\alpha_2$, and $\alpha_3$.
 
 ## Answer
+
+```{r}
+rdd1year85 <- RDestimate(data= data,agedth5~bweight, cutpoint = 1500, bw = 85)
+summary(rdd1year85)
+
+rdd28day85 <- RDestimate(data= data,agedth4~bweight, cutpoint = 1500, bw = 85)
+summary(rdd28day85)
+```
+
 
 ## 6
 

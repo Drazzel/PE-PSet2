@@ -93,7 +93,7 @@ The relationship between birth weight and both of the mortality measures we anal
 cor.test(data$agedth4,data$bweight)
 cor.test(data$agedth5,data$bweight)
 ```
-The regression discontinuity at 1500 grams seems to be fuzzy. It does not indicate a marked increase in the probability of a premature death at either of the date cutoffs specified previously (28 days or 1 year).
+The regression discontinuity at 1500 grams seems to be sharp. It indicates a marked increase in the probability of a premature death at either of the date cutoffs specified previously (28 days or 1 year) above the running variable.
 
 The mean estimate for the lowest bin (1350-1358) is sensitive because the number of observations is ~10% the size of the other bins. Any outliers in either direction are likely to bias the mean estimate of that bin.
 ```{r}
@@ -166,7 +166,7 @@ reg2 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% 
 stargazer(reg1,reg2, type = "latex", title = "Infant Mortality by Very Low Birth Weight Status (85g Caliper)", covariate.labels = c("Birth Weight < 1,500g", "Birth Weight < 1500g x grams from cutoff", "Birth Weight >= 1500g x grams from cutoff"), dep.var.labels = c("28 Day Mortality","1 Year Mortality"), digits = 6, single.row = TRUE)
 ```
 
-In the fuzzy RDD (Table 2), $\alpha_1$ represents the local average treatment effect, in particular indicating the amount of impact treatment has on the mortality rate. Crossing above the 1500 gram threshold has the impact of increasing the likelihood of infant mortality at both 28 days and 1 year time horizons. A likely reason for this impact is that as a baby crosses that threshold, they receive less intensive medical attention but are still at similar risks compared to babies just below that threshold, thereby increasing the risk of death for children born above the cutoff weight.
+In a sharp RDD (Table 2), $\alpha_1$ represents the local average treatment effect, in particular indicating the amount of impact treatment has on the mortality rate. Crossing above the 1500 gram threshold has the impact of increasing the likelihood of infant mortality at both 28 days and 1 year time horizons. A likely reason for this impact is that as a baby crosses that threshold, they receive less intensive medical attention but are still at similar risks compared to babies just below that threshold, thereby increasing the risk of death for children born above the cutoff weight.
 
 Subsequently in $\alpha_2$, the rate of mortality decreases the further away you are from the cutoff rate, as you receive more intensive medical care given how low the birth weight is even compared to the range directly around the cutoff. $\alpha_3$ shows that as you trend further above the cutoff, you are also likely to experience a lower mortality rate, as you'd expect those children, who are further from the cutoff to be healthier than the children who are cluster around the cutoff weight.
 
@@ -213,6 +213,8 @@ reg8 <- data %>% filter(., (bweight >= (1500-120)) & (bweight <= (1500+120))) %>
 Synthetize your findings and discuss what kind of supplementary information would you need to make a cost-benefit analysis of treatment received by newborns close to the very low birth weight threshold.
 
 ## Answer
+
+We are aware that there is a likely impact of additional treatment for children born under the threshold that minimizes the probability of infant mortality. Given that, we can expect that a broader plan of medical services for infants will be effective. In order to conduct a cost-benefit analysis of said strategy, valuable metrics to have would be the spending on medical services for both the control and the treatment group and the time spent under medical care for control and treatment groups. As we identify how costly the intervention would be both in terms of spending and time, we can prepare an analysis of how effective this strategy could be from the perspective of a cost-benefit analysis.
 
 \pagebreak
 

@@ -17,6 +17,7 @@ library(survival)
 library(ggplot2)
 library(rdd)
 library(ggpubr)
+library(stargazer)
 ```
 
 For this assignment, provide a write-‐up where you answer the questions below,
@@ -159,9 +160,13 @@ where $Y_i$ is the outcome of interest, $VLBW_i$ indicates that a newborn had ve
 
 ```{r}
 data$VLBW <- ifelse(data$bweight >= 1500, 1,0)
+data$gidiff <- data$bweight - 1500
+data$VLBWInter <- data$VLBW*data$gidiff
+data$NegVLBWInter <- (1-data$VLBW)*data$gidiff
 
-
-
+reg1 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter, data=.)
+options(scipen = 0)
+summary(reg1)
 
 ```
 
@@ -172,11 +177,21 @@ Now add covariates to the model in (5). Include mother’s age, indicators for m
 
 ## Answer
 
+```{r}
+reg2 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter, data=.)
+options(scipen = 0)
+summary(reg2)
+```
+
 ## 7
 
 Use the model in (6) to assess the sensitivity of the estimates to the use of different calipers. Use calipers of 30 and 120 grams (above and below the 1500 threshold). Are the estimates any different to those obtained in (6)? What is the tradeoff that we face when increasing/decreasing the caliper?
 
 ## Answer
+
+```{r}
+
+```
 
 ## 8
 

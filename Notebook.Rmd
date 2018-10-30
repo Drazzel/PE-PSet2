@@ -4,6 +4,7 @@ output: pdf_document
 author: Drazzel Feliu - 12174100
 ---
 
+
 ```{r setup, results='hide', warning=FALSE, message=FALSE,include=FALSE}
 # Clear Workspace
 rm(list=ls())
@@ -23,7 +24,7 @@ library(stargazer)
 For this assignment, provide a write-‐up where you answer the questions below,
 selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also, submit a log file that includes commands and results for your entire analysis. The assignment makes use of almond_etal_2008.dta, which you can find on Canvas.
 
-```{r}
+```{r, results='hide'}
 # load data set
 data <- read_dta("almond_etal_2008.dta")
 # create data table identifying class and labels for each variable
@@ -46,7 +47,7 @@ A key policy question in health economics is whether the benefits of additional 
 
 Start by getting the descriptive statistics of birth weight in the sample, what is the mean, standard deviation, minimum, and maximum?
 
-```{r}
+```{r, results='hide'}
 mean(data$bweight)
 sd(data$bweight)
 min(data$bweight)
@@ -65,8 +66,7 @@ The maximum birth weight is 1650 grams.
 Now plot one year and 28 day mortality rates against our running variable, birth weight. To do so, make bins of one ounce (28.35 grams) around the 1500 grams threshold, and get the mean mortality rate on each bin. Make a separate graph for each outcome. Describe the relationship between birth weight and mortality. Does it appear to be a discontinuity of mortality around the very low birth weight threshold? How does the number of observations in each bin affect your mean estimates?
 
 ## Answer
-
-```{r, echo=FALSE, results='hide'}
+```{r results='hide'}
 #create data bins
 data$bins <- ((data$bweight-1500)/28.35) %>% floor()
 
@@ -93,7 +93,6 @@ The relationship between birth weight and both of the mortality measures we anal
 cor.test(data$agedth4,data$bweight)
 cor.test(data$agedth5,data$bweight)
 ```
-
 The regression discontinuity at 1500 grams seems to be fuzzy. It does not indicate a marked increase in the probability of a premature death at either of the date cutoffs specified previously (28 days or 1 year).
 
 The mean estimate for the lowest bin (1350-1358) is sensitive because the number of observations is ~10% the size of the other bins. Any outliers in either direction are likely to bias the mean estimate of that bin.
@@ -110,13 +109,17 @@ A key assumption for an RDD to provide a causal estimate is that individuals are
 This assumption is reasonable. While there may be some financial incentive to induce early births on behalf of the practicing obstetrician (in order to charge more in future services), there seems likely to be enough practical resistance to inducing early births around the cutoff. Especially when considering that attempting to fall below the cutoff only endangers the life of the baby even more. No parent, under this scenario, would attempt to induce an early birth. The cutoff of 1500 grams is also so low that no parent would reasonably attempt to have a baby born at so low a weight (3.3 lbs). Additionally, any selection across the birth weight variable would have to be reflected in all the other covariates variables around the margin.
 
 I have conducted a balance test between the two bins immediately above and below the 1500 gram threshold. A series of statistically significant differences amongst the two would indicate that there was a likelihood of some manipulation around the boundary of the regression discontinuity.
-```{r}
+```{r, results='hide'}
 databal <- data
 databal <- databal %>% filter(., bins==c("1472-1499") | bins==("1500-1528"))
 
 baltest <- lm(data = databal,as.numeric(bins) ~ mom_age + mom_race + mom_ed + gest + nprenatal + sex + agedth)
-summary(baltest)
 ```
+
+```{r, results='asis'}
+chart1 <- stargazer(baltest, type = "latex", title = "Balance Test Across The Threshold Using a 28.5g Caliper", covariate.labels = c("Mother's Age", "Mother's Race", "Mother's Education", "Gestational Weeks", "Prenatal Visits", "Child's Sex", "Infant Age of Death", "Constant"), dep.var.labels = "", digits = 6)
+```
+
 The results indicate that there is only a statistically significant difference in the ages of the mothers. We can reasonably assume that individuals are not selecting across the running variable at the threshold.
 
 ## 4
@@ -125,18 +128,16 @@ Assess informally whether the behavior of other covariates is smooth around the 
 
 ## Answer
 
-```{r}
+```{r, results='hide'}
 plot3 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_age)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Age") + xlab("Birth Weight Bins") + ggtitle("Mean Mother's Age") + theme(plot.title = element_text(hjust = 0.5))
-
 plot4 <- data %>% group_by(bins) %>% summarize(mean = mean(mom_ed1, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Education Level Achieved") + xlab("Birth Weight Bins") + ggtitle("Mean Mother's Education (in grade level completed)") + theme(plot.title = element_text(hjust = 0.5))
-
 plot5 <- data %>% group_by(bins) %>% summarize(mean = mean(nprenatal, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Prenatal Visits") + xlab("Birth Weight Bins") + ggtitle("Mean Prenatal Visits") + theme(plot.title = element_text(hjust = 0.5))
-
 plot6 <- data %>% group_by(bins) %>% summarize(mean = mean(gest, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Number of Weeks in Gestation") + xlab("Birth Weight Bins") + ggtitle("Mean Weeks in Gestation") + theme(plot.title = element_text(hjust = 0.5))
-
 plot7 <- data %>% group_by(bins) %>% summarize(mean = mean(yob, na.rm = TRUE)) %>% ggplot(aes(bins,mean)) + geom_point() + geom_vline(xintercept = 6.5, size = 2, linetype = "dashed" ,col = "pink")  + theme_classic() + ylab("Number of Weeks in Gestation") + xlab("Birth Weight Bins") + ggtitle("Mean Year Of Birth") + theme(plot.title = element_text(hjust = 0.5))
+```
 
-ggarrange(plotlist = list(plot3, plot4, plot5, plot6, plot7))
+```{r echo=FALSE}
+ggarrange(plotlist = list(plot3, plot4, plot5, plot6, plot7), nrow = 3, ncol = 2)
 ```
 There is evidence of discontinuities on other covariates (particularly number of prenatal visits). The problem this could likely introduce in our RDD estimates is that the supposition that our populations are similar around the threshold will not hold and thereby undermining the assumption necessary for us to estimate the RDD accurately.
 
@@ -150,19 +151,24 @@ where $Y_i$ is the outcome of interest, $VLBW_i$ indicates that a newborn had ve
 
 ## Answer
 
-```{r}
+```{r, results='hide'}
 data$VLBW <- ifelse(data$bweight >= 1500, 0,1)
 data$gidiff <- data$bweight - 1500
 data$VLBWInter <- data$VLBW*data$gidiff
 data$NegVLBWInter <- (1-data$VLBW)*data$gidiff
 
 reg1 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter, data=.)
-summary(reg1)
 
 reg2 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter, data=.)
-summary(reg2)
 ```
 
+```{r, results='asis'}
+stargazer(reg1,reg2, type = "latex", title = "Infant Mortality by Very Low Birth Weight Status (85g Caliper)", covariate.labels = c("Birth Weight < 1,500g", "Birth Weight < 1500g x grams from cutoff", "Birth Weight >= 1500g x grams from cutoff"), dep.var.labels = c("28 Day Mortality","1 Year Mortality"), digits = 6, single.row = TRUE)
+```
+
+In the fuzzy RDD (Table 2), $\alpha_1$ represents the local average treatment effect, in particular indicating the amount of impact treatment has on the mortality rate. Crossing above the 1500 gram threshold has the impact of increasing the likelihood of infant mortality at both 28 days and 1 year time horizons. A likely reason for this impact is that as a baby crosses that threshold, they receive less intensive medical attention but are still at similar risks compared to babies just below that threshold, thereby increasing the risk of death for children born above the cutoff weight.
+
+Subsequently in $\alpha_2$, the rate of mortality decreases the further away you are from the cutoff rate, as you receive more intensive medical care given how low the birth weight is even compared to the range directly around the cutoff. $\alpha_3$ shows that as you trend further above the cutoff, you are also likely to experience a lower mortality rate, as you'd expect those children, who are further from the cutoff to be healthier than the children who are cluster around the cutoff weight.
 
 ## 6
 
@@ -174,11 +180,13 @@ Now add covariates to the model in (5). Include mother’s age, indicators for m
 data$mom_age_bins <- cut(data$mom_age, breaks = seq(10,55, by = 5), right = FALSE, labels = c(0:8))
 
 reg3 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg3)
 
 reg4 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg4)
 ```
+
+In comparison to the previous model (Table 3 versus Table 2), the impacts of $\alpha_1$, $\alpha_2$, and $\alpha_3$ are all muted partially, after controlling for the year and demographic characteristics across the threshold, in both the 28 day and 1 year analysis. After controlling, the LATE or $\alpha_1$ is $-0.007424$ (28 day, controlled) versus $-0.008781$ (28 day general). Similarly, the $\alpha_2$ is $-0.000103$ (28 day, controlled) versus $-0.000113$ (28 day general). $\alpha_3$ exhibits a similar relationship where the controlled estimate ($-0.000183$) is smaller in intensity than the general estimate ($-0.000200$). The same tendency exists in the 1 year mortality rates across all three variables, given the controls. 
+
+This relationship is valid as as you'd expect to not have statistically significant difference across the populations as evidenced earlier by our balance tests. So controlling for demographic characteristics and underlying variables doesn't have a significant impact on the value of our estimates.
 
 ## 7
 
@@ -186,18 +194,18 @@ Use the model in (6) to assess the sensitivity of the estimates to the use of di
 
 ## Answer
 
-```{r}
+As we begin to adjust the bandwidth of our analysis (Table 3 & Table 4), we see the very obvious tradeoffs associated with the decisions to tighten or expand the bandwidth. As we shrink the bandwidth from 85g to 30g, we see estimates with larger magnitudes (28 day - 85g & 30g: $\alpha_1 = -0.007424$ vs $\alpha_1 = -0.014398$, $\alpha_2 = -0.000103$ vs $\alpha_2 = -0.000278$, $\alpha_3 = -0.000183$ vs $\alpha_3 = -0.000552$) but standard errors increase across the board (28 day - 85g & 30g: $\alpha_1 = 0.001805$ vs $\alpha_1 = 0.004375$, $\alpha_2 = 0.000027$ vs $\alpha_2 = 0.000173$, $\alpha_3 = 0.000024$ vs $\alpha_3 = 0.000112$). This relationship holds across the 1 year mortality rate. As we tighten the bandwidth, we find our estimates to be less precise (the increase in standard errors) but we have less bias towards the outliers and get much closer to what the likely impact of treatment is in this case.
+
+The inverse of this relationship is true when we expand the bandwidth (Table 3 & Table 5). We get more precise, indicated by the standard errors decreasing across the board. However, our estimates are more biased. We stray further from the likely impact of the treatment as our LATE estimator is now smaller in magnitude in both the 28 day case (28 day - 30g, 85g, 120g:$\alpha_1 = -0.014398$ ,$\alpha_1 = -0.007424$, $\alpha_1 = -0.005648$) and the 1 year case (1 year - 30g, 85g, 120g:$\alpha_1 = -0.014230$ ,$\alpha_1 = -0.007637$, $\alpha_1 = -0.006444$) compared to our 85g and 30g estimations.
+
+```{r, results='hide'}
 reg5 <- data %>% filter(., (bweight >= (1500-30)) & (bweight <= (1500+30))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg5)
 
 reg6 <- data %>% filter(., (bweight >= (1500-30)) & (bweight <= (1500+30))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg6)
 
 reg7 <- data %>% filter(., (bweight >= (1500-120)) & (bweight <= (1500+120))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg7)
 
 reg8 <- data %>% filter(., (bweight >= (1500-120)) & (bweight <= (1500+120))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-summary(reg8)
 ```
 
 ## 8
@@ -205,3 +213,20 @@ summary(reg8)
 Synthetize your findings and discuss what kind of supplementary information would you need to make a cost-benefit analysis of treatment received by newborns close to the very low birth weight threshold.
 
 ## Answer
+
+\pagebreak
+
+# Appendix
+
+```{r echo=FALSE, results='asis'}
+stargazer(reg3,reg4, type = "latex", title = "Infant Mortality by Very Low Birth Weight Status (85g Caliper)", covariate.labels = c("Birth Weight < 1,500g", "Birth Weight < 1500g x grams from cutoff", "Birth Weight >= 1500g x grams from cutoff"), dep.var.labels = c("28 Day Mortality","1 Year Mortality"), digits = 6, single.row = TRUE)
+```
+
+```{r echo=FALSE, results='asis'}
+stargazer(reg5,reg6, type = "latex", title = "Infant Mortality by Very Low Birth Weight Status (30g Caliper)", covariate.labels = c("Birth Weight < 1,500g", "Birth Weight < 1500g x grams from cutoff", "Birth Weight >= 1500g x grams from cutoff"), dep.var.labels = c("28 Day Mortality","1 Year Mortality"), digits = 6, single.row = TRUE)
+```
+
+```{r echo=FALSE, results='asis'}
+stargazer(reg7,reg8, type = "latex", title = "Infant Mortality by Very Low Birth Weight Status (120g Caliper)", covariate.labels = c("Birth Weight < 1,500g", "Birth Weight < 1500g x grams from cutoff", "Birth Weight >= 1500g x grams from cutoff"), dep.var.labels = c("28 Day Mortality","1 Year Mortality"), digits = 6, single.row = TRUE)
+```
+

@@ -159,10 +159,10 @@ data$NegVLBWInter <- (1-data$VLBW)*data$gidiff
 reg1 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter, data=.)
 summary(reg1)
 
-reg1 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter, data=.)
-summary(reg1)
+reg2 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter, data=.)
+summary(reg2)
 ```
-I AIN'T INTERPRETING SHIT, GROGGER!!
+
 
 ## 6
 
@@ -173,9 +173,11 @@ Now add covariates to the model in (5). Include mother’s age, indicators for m
 ```{r}
 data$mom_age_bins <- cut(data$mom_age, breaks = seq(10,55, by = 5), right = FALSE, labels = c(0:8))
 
-reg2 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
-options(scipen = 999)
-summary(reg2)
+reg3 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg3)
+
+reg4 <- data %>% filter(., (bweight >= (1500-85)) & (bweight <= (1500+85))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg4)
 ```
 
 ## 7
@@ -185,7 +187,17 @@ Use the model in (6) to assess the sensitivity of the estimates to the use of di
 ## Answer
 
 ```{r}
+reg5 <- data %>% filter(., (bweight >= (1500-30)) & (bweight <= (1500+30))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg5)
 
+reg6 <- data %>% filter(., (bweight >= (1500-30)) & (bweight <= (1500+30))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg6)
+
+reg7 <- data %>% filter(., (bweight >= (1500-120)) & (bweight <= (1500+120))) %>% lm(agedth4~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg7)
+
+reg8 <- data %>% filter(., (bweight >= (1500-120)) & (bweight <= (1500+120))) %>% lm(agedth5~VLBW + VLBWInter + NegVLBWInter + as.factor(mom_age_bins) + mom_ed1 + mom_ed2 + mom_ed3 + mom_ed4 + mom_ed5 + as.factor(mom_race) + as.factor(yob) + gest_wks1 + gest_wks2+ gest_wks3 + gest_wks4 + nprenatal_1 + nprenatal_2 + nprenatal_3 + nprenatal_4, data=.)
+summary(reg8)
 ```
 
 ## 8
